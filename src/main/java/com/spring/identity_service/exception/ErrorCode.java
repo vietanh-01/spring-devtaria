@@ -6,7 +6,8 @@ import lombok.Getter;
 public enum ErrorCode {
     USER_EXISTED(1001, "User existed"),
     LIMIT_VALIDATE(5000, "Password must be at least 8 characters and maximum is 10 chacracters"),
-    UNCATEGORIZED_EXCEPTION(9999, "Uncategorized exception")
+    UNCATEGORIZED_EXCEPTION(9999, "Uncategorized exception"),
+    USER_NOT_EXISTED(1005, "User not exsited")
     ;
 
     ErrorCode(int code, String message) {
