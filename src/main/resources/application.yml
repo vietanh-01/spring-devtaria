@@ -1,4 +1,10 @@
 
+
+server:
+    port: 8080
+    servlet:
+        context-path: /identity
+
 spring:
     application:
         name: identity-service
@@ -11,7 +17,8 @@ spring:
           ddl-auto: update
         show-sql: true
 
-server:
-    port: 8080
-    servlet:
-        context-path: /identity
+jwt:
+    signerKey: "wVKQCLiM3nXVQWu1FE+V46tWjCrRJh7AyEUKB1YStWnJu84fhm6AgFZ2vklKk+8u"
+
+
+
