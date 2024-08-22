@@ -6,6 +6,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
+import java.util.Set;
 
 
 @Data
@@ -15,8 +16,8 @@ import java.time.LocalDate;
 public class UserResponse {
     private Long id;
     private String username;
-    private String password;
     private String lastName;
     private String firstName;
     private LocalDate dob;
+    Set<String> roles;
 }

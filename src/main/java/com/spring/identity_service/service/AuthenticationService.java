@@ -12,6 +12,7 @@ import com.spring.identity_service.dto.response.IntrospectResponse;
 import com.spring.identity_service.entity.User;
 import com.spring.identity_service.exception.AppException;
 import com.spring.identity_service.exception.ErrorCode;
+import com.spring.identity_service.mapper.UserMapper;
 import com.spring.identity_service.repository.UserRepository;
 import lombok.AccessLevel;
 import lombok.RequiredArgsConstructor;
@@ -22,13 +23,13 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.util.CollectionUtils;
 
 import java.text.ParseException;
 import java.time.Instant;
 import java.time.chrono.ChronoLocalDate;
 import java.util.Date;
-
-
+import java.util.StringJoiner;
 
 
 @Service
@@ -72,24 +73,24 @@ public class AuthenticationService {
         if(!authenticated)
             throw new AppException(ErrorCode.UNAUTHENTICATED);
 
-        var token = generateToken(request.getUsername());
+        var token = generateToken(user);
         return AuthenticationResponse.builder()
                 .token(token)
                 .authenticated(true)
                 .build();
     }
 
-    private String generateToken(String username) {
+    private String generateToken(User user) {
         JWSHeader header = new JWSHeader(JWSAlgorithm.HS512);
 
         long oneDayMillis = 24L * 60L * 60L * 1000L;
 
         JWTClaimsSet jwtClaimsSet = new JWTClaimsSet.Builder()
-                .subject(username)
+                .subject(user.getUsername())
                 .issuer("owen24") // define the token was issued by who
                 .issueTime(new Date())
                 .expirationTime(new Date(System.currentTimeMillis() + oneDayMillis))
-                .claim("userId", "customerId") // custom claim
+                .claim("scope", buildScope(user)) // roles list
                 .build();
 
         Payload payload = new Payload(jwtClaimsSet.toJSONObject());
@@ -103,5 +104,16 @@ public class AuthenticationService {
             log.error("Cannot create token", e);
             throw new RuntimeException(e);
         }
+    }
+
+    // build scope roles from user -> ADMIN USER SALE
+    private String buildScope(User user) {
+        StringJoiner stringJoiner = new StringJoiner(" ");
+        if(!CollectionUtils.isEmpty(user.getRoles())) {
+            user.getRoles()
+                    .forEach(role -> stringJoiner.add(role));
+        }
+
+        return stringJoiner.toString();
     }
 }
