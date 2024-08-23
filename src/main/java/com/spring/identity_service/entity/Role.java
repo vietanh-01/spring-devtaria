@@ -7,7 +7,6 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
-import java.util.HashSet;
 import java.util.Set;
 
 @Entity
@@ -16,17 +15,12 @@ import java.util.Set;
 @NoArgsConstructor
 @AllArgsConstructor
 @Data
-public class User {
+public class Role {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
-    private String username;
-    private String password;
-    private String lastName;
-    private String firstName;
-    private LocalDate dob;
+    private String name;
+    private String description;
 
     @ManyToMany
-    private Set<Role> roles = new HashSet<>();
+    Set<Permission> permissions;
 
 }

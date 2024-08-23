@@ -13,6 +13,7 @@ import org.mapstruct.MappingTarget;
 public interface UserMapper {
     User toUser(UserCreationRequest request);
 
+    @Mapping(target = "roles", ignore = true)
     void updateUser(@MappingTarget User user, UserUpdateRequest request);
 
     //@Mapping(source = "firstName", target = "lastName") => map field firstName from User entity to field lastName in UserResponse

@@ -50,8 +50,10 @@ public class UserController {
     }
 
     @PutMapping("/{userId}")
-    public UserResponse updateUser(@RequestBody UserUpdateRequest request, @PathVariable Long userId) {
-         return service.updateUser(userId, request);
+    public ApiResponse<UserResponse> updateUser(@RequestBody UserUpdateRequest request, @PathVariable Long userId) {
+         return ApiResponse.<UserResponse>builder()
+                 .result(service.updateUser(userId, request))
+                 .build();
     }
 
     @DeleteMapping("/{userId}")
@@ -60,5 +62,12 @@ public class UserController {
         service.delete(userId);
 
         return "Delete user with ID: " + userId;
+    }
+
+    @GetMapping("/myInfo")
+    public ApiResponse<UserResponse> getMyInfo() {
+        return ApiResponse.<UserResponse>builder()
+                .result(service.getMyInfo())
+                .build();
     }
 }

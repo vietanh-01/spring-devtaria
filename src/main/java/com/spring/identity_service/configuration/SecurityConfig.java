@@ -1,10 +1,12 @@
 package com.spring.identity_service.configuration;
 
+import com.spring.identity_service.enums.Role;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.config.Customizer;
+import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
@@ -21,6 +23,7 @@ import javax.crypto.spec.SecretKeySpec;
 
 @Configuration
 @EnableWebSecurity //optional
+@EnableMethodSecurity // authorization using annotation
 public class SecurityConfig {
 
     private final String[] PUBLIC_ENDPOINTS = {"/users",
@@ -34,15 +37,16 @@ public class SecurityConfig {
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http.authorizeHttpRequests(request ->
                 request.requestMatchers(HttpMethod.POST, PUBLIC_ENDPOINTS).permitAll() // config only post method to url: /users public
-                        .requestMatchers( HttpMethod.GET, "/users").hasAuthority("ROLE_ADMIN")
-                        .anyRequest().authenticated()
+                        //.requestMatchers( HttpMethod.GET, "/users").hasRole(Role.ADMIN.name())
+
+                       .anyRequest().authenticated()
         );
 
         http.oauth2ResourceServer(oauth2 ->
                 oauth2.jwt(jwtConfigurer ->
                         jwtConfigurer.decoder(jwtDecoder()) // config token to access on other resources
-                                .jwtAuthenticationConverter(jwtAuthenticationConverter()) //customize converter
-                )
+                                .jwtAuthenticationConverter(jwtAuthenticationConverter()))// customize converter
+                        .authenticationEntryPoint(new JwtAuthenticationEntryPoint())
         );
 
         http.csrf(AbstractHttpConfigurer::disable);
@@ -53,7 +57,7 @@ public class SecurityConfig {
     @Bean
     JwtAuthenticationConverter jwtAuthenticationConverter() {
         JwtGrantedAuthoritiesConverter authoritiesConverter = new JwtGrantedAuthoritiesConverter();
-        authoritiesConverter.setAuthorityPrefix("ROLE_");
+        authoritiesConverter.setAuthorityPrefix("");
 
         JwtAuthenticationConverter authenticationConverter = new JwtAuthenticationConverter();
         authenticationConverter.setJwtGrantedAuthoritiesConverter(authoritiesConverter);
