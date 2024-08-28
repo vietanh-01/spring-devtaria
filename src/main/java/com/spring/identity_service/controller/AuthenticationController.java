@@ -1,14 +1,11 @@
 package com.spring.identity_service.controller;
 
 import com.nimbusds.jose.JOSEException;
-import com.spring.identity_service.dto.request.ApiResponse;
-import com.spring.identity_service.dto.request.AuthenticationRequest;
-import com.spring.identity_service.dto.request.IntrospectRequest;
+import com.spring.identity_service.dto.request.*;
 import com.spring.identity_service.dto.response.AuthenticationResponse;
 import com.spring.identity_service.dto.response.IntrospectResponse;
 import com.spring.identity_service.service.AuthenticationService;
 import lombok.AccessLevel;
-import lombok.Builder;
 import lombok.RequiredArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -25,6 +22,7 @@ import java.text.ParseException;
 public class AuthenticationController {
 
     AuthenticationService service;
+    private final AuthenticationService authenticationService;
 
     @PostMapping("/token")
     public ApiResponse<AuthenticationResponse> authenticate(@RequestBody AuthenticationRequest request) {
@@ -44,4 +42,20 @@ public class AuthenticationController {
                     .build();
     }
 
+    @PostMapping("/logout")
+    public ApiResponse<Void> logout(@RequestBody LogoutRequest request) throws ParseException, JOSEException {
+        service.logout(request);
+
+        return ApiResponse.<Void>builder()
+                .build();
+    }
+
+    @PostMapping("/refresh")
+    public ApiResponse<AuthenticationResponse> refresh(@RequestBody RefreshRequest request) throws ParseException, JOSEException {
+        AuthenticationResponse result = authenticationService.refreshToken(request);
+
+        return ApiResponse.<AuthenticationResponse>builder()
+                .result(result)
+                .build();
+    }
 }
